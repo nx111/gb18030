@@ -177,13 +177,13 @@ namespace cp52936
         const int RET_TOOSMALL = -3;
         const int RET_TOOFEW = -4;
 
-        static readonly ushort[] gb18030ext_2uni_pagea9 =
+        private static readonly ushort[] gb18030ext_2uni_pagea9 =
         {
             /* 0xa9 */
             0x303e, 0x2ff0, 0x2ff1, 0x2ff2, 0x2ff3, 0x2ff4, 0x2ff5, 0x2ff6,
             0x2ff7, 0x2ff8, 0x2ff9, 0x2ffa, 0x2ffb,
         };
-        static readonly ushort[] gb18030ext_2uni_pagefe =
+        private static readonly ushort[] gb18030ext_2uni_pagefe =
         {
             /* 0xfe */
             0xfffd, 0xfffd, 0xfffd, 0xfffd, 0xfffd, 0xfffd, 0xfffd, 0xfffd,
@@ -200,7 +200,7 @@ namespace cp52936
             0x4d14, 0x4d15, 0x4d16, 0x4d17, 0x4d18, 0x4d19, 0x4dae, 0xe864,
         };
 
-        static readonly ushort[] gb18030uni_charset2uni_ranges =
+        private static readonly ushort[] gb18030uni_charset2uni_ranges =
         {
             0x0000, 0x0023,  0x0024, 0x0025,  0x0026, 0x002c,  0x002d, 0x0031,
             0x0032, 0x0050,  0x0051, 0x0058,  0x0059, 0x005e,  0x005f, 0x005f,
@@ -258,7 +258,7 @@ namespace cp52936
             0x9961, 0x99e1,  0x99e2, 0x99fb
         };
 
-        static readonly ushort[] gb18030uni_uni2charset_ranges =
+        private static readonly ushort[] gb18030uni_uni2charset_ranges =
         {
             0x0080, 0x00a3,  0x00a5, 0x00a6,  0x00a9, 0x00af,  0x00b2, 0x00b6,
             0x00b8, 0x00d6,  0x00d8, 0x00df,  0x00e2, 0x00e7,  0x00eb, 0x00eb,
@@ -316,7 +316,7 @@ namespace cp52936
             0xff5f, 0xffdf,  0xffe6, 0xffff
         };
 
-        static readonly ushort[] gb18030uni_ranges =
+        private static readonly ushort[] gb18030uni_ranges =
         {
             128,   129,   131,   133,   134,   135,   137,   140,
             142,   144,   145,   147,   148,   149,   150,   151,
@@ -358,9 +358,9 @@ namespace cp52936
             this.throwOnInvalidBytes = throwOnInvalidBytes;
         }
 
-        public static unsafe int ascii_mbtowc(ref ulong pwc, byte *s, int n)
+        private static int ascii_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c = *s;
+            byte c = s[offset];
             if (c < 0x80)
             {
                 pwc = (ulong)c;
@@ -369,95 +369,95 @@ namespace cp52936
             return RET_ILSEQ;
         }
 
-        public static unsafe int
-        gb18030ext_mbtowc(ref ulong pwc, byte *s, int n)
+        private static int
+        gb18030ext_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if ((c1 == 0xa2) || (c1 >= 0xa4 && c1 <= 0xa9) || (c1 == 0xd7) || (c1 == 0xfe))
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0x80 && c2 < 0xff))
                     {
                         uint i = (uint)(190 * (c1 - 0x81) + (c2 - (c2 >= 0x80 ? 0x41 : 0x40)));
                         ushort wc = 0xfffd;
                         switch (c1)
                         {
-                        case 0xa2:
-                            if (i >= 6376 && i <= 6381) /* 0xA2AB..0xA2B0 */
-                                wc = (ushort)(0xe766 + (i - 6376));
-                            else if (i == 6432) /* 0xA2E3 */
-                                wc = 0x20ac;
-                            else if (i == 6433) /* 0xA2E4 */
-                                wc = 0xe76d;
-                            else if (i >= 6444 && i <= 6445) /* 0xA2EF..0xA2F0 */
-                                wc = (ushort)(0xe76e + (i - 6444));
-                            else if (i >= 6458 && i <= 6459) /* 0xA2FD..0xA2FE */
-                                wc = (ushort)(0xe770 + (i - 6458));
-                            break;
-                        case 0xa4:
-                            if (i >= 6829 && i <= 6839) /* 0xA4F4..0xA4FE */
-                                wc = (ushort)(0xe772 + (i - 6829));
-                            break;
-                        case 0xa5:
-                            if (i >= 7022 && i <= 7029) /* 0xA5F7..0xA5FE */
-                                wc = (ushort)(0xe77d + (i - 7022));
-                            break;
-                        case 0xa6:
-                            if (i >= 7150 && i <= 7157) /* 0xA6B9..0xA6C0 */
-                                wc = (ushort)(0xe785 + (i - 7150));
-                            else if (i >= 7182 && i <= 7190) /* 0xA6D9..0xA6DF */
-                                wc = (ushort)(0xe78d + (i - 7182));
-                            else if (i >= 7201 && i <= 7202) /* 0xA6EC..0xA6ED */
-                                wc = (ushort)(0xe794 + (i - 7201));
-                            else if (i == 7208) /* 0xA6F3 */
-                                wc = 0xe796;
-                            else if (i >= 7211 && i <= 7219) /* 0xA6F6..0xA6FE */
-                                wc = (ushort)(0xe797 + (i - 7211));
-                            break;
-                        case 0xa7:
-                            if (i >= 7349 && i <= 7363) /* 0xA7C2..0xA7D0 */
-                                wc = (ushort)(0xe7a0 + (i - 7349));
-                            else if (i >= 7397 && i <= 7409) /* 0xA7F2..0xA7FE */
-                                wc = (ushort)(0xe7af + (i - 7397));
-                            break;
-                        case 0xa8:
-                            if (i >= 7495 && i <= 7505) /* 0xA896..0xA8A0 */
-                                wc = (ushort)(0xe7bc + (i - 7495));
-                            else if (i == 7533) /* 0xA8BC */
-                                wc = 0xe7c7;
-                            else if (i == 7536) /* 0xA8BF */
-                                wc = 0x01f9;
-                            else if (i >= 7538 && i <= 7541) /* 0xA8C1..0xA8C4 */
-                                wc = (ushort)(0xe7c9 + (i - 7538));
-                            else if (i >= 7579 && i <= 7599) /* 0xA8EA..0xA8FE */
-                                wc = (ushort)(0xe7cd + (i - 7579));
-                            break;
-                        case 0xa9:
-                            if (i == 7624) /* 0xA958 */
-                                wc = 0xe7e2;
-                            else if (i == 7627) /* 0xA95B */
-                                wc = 0xe7e3;
-                            else if (i >= 7629 && i <= 7631) /* 0xA95D..0xA95F */
-                                wc = (ushort)(0xe7e4 + (i - 7629));
-                            else if (i >= 7672 && i < 7685) /* 0xA989..0xA995 */
-                                wc = gb18030ext_2uni_pagea9[i - 7672];
-                            else if (i >= 7686 && i <= 7698) /* 0xA997..0xA9A3 */
-                                wc = (ushort)(0xe7f4 + (i - 7686));
-                            else if (i >= 7775 && i <= 7789) /* 0xA9F0..0xA9FE */
-                                wc = (ushort)(0xe801 + (i - 7775));
-                            break;
-                        case 0xd7:
-                            if (i >= 16525 && i <= 16529) /* 0xD7FA..0xD7FE */
-                                wc = (ushort)(0xe810 + (i - 16525));
-                            break;
-                        case 0xfe:
-                            if (i < 23846)
-                                wc = gb18030ext_2uni_pagefe[i - 23750];
-                            break;
-                        default:
-                            break;
+                            case 0xa2:
+                                if (i >= 6376 && i <= 6381) /* 0xA2AB..0xA2B0 */
+                                    wc = (ushort)(0xe766 + (i - 6376));
+                                else if (i == 6432) /* 0xA2E3 */
+                                    wc = 0x20ac;
+                                else if (i == 6433) /* 0xA2E4 */
+                                    wc = 0xe76d;
+                                else if (i >= 6444 && i <= 6445) /* 0xA2EF..0xA2F0 */
+                                    wc = (ushort)(0xe76e + (i - 6444));
+                                else if (i >= 6458 && i <= 6459) /* 0xA2FD..0xA2FE */
+                                    wc = (ushort)(0xe770 + (i - 6458));
+                                break;
+                            case 0xa4:
+                                if (i >= 6829 && i <= 6839) /* 0xA4F4..0xA4FE */
+                                    wc = (ushort)(0xe772 + (i - 6829));
+                                break;
+                            case 0xa5:
+                                if (i >= 7022 && i <= 7029) /* 0xA5F7..0xA5FE */
+                                    wc = (ushort)(0xe77d + (i - 7022));
+                                break;
+                            case 0xa6:
+                                if (i >= 7150 && i <= 7157) /* 0xA6B9..0xA6C0 */
+                                    wc = (ushort)(0xe785 + (i - 7150));
+                                else if (i >= 7182 && i <= 7190) /* 0xA6D9..0xA6DF */
+                                    wc = (ushort)(0xe78d + (i - 7182));
+                                else if (i >= 7201 && i <= 7202) /* 0xA6EC..0xA6ED */
+                                    wc = (ushort)(0xe794 + (i - 7201));
+                                else if (i == 7208) /* 0xA6F3 */
+                                    wc = 0xe796;
+                                else if (i >= 7211 && i <= 7219) /* 0xA6F6..0xA6FE */
+                                    wc = (ushort)(0xe797 + (i - 7211));
+                                break;
+                            case 0xa7:
+                                if (i >= 7349 && i <= 7363) /* 0xA7C2..0xA7D0 */
+                                    wc = (ushort)(0xe7a0 + (i - 7349));
+                                else if (i >= 7397 && i <= 7409) /* 0xA7F2..0xA7FE */
+                                    wc = (ushort)(0xe7af + (i - 7397));
+                                break;
+                            case 0xa8:
+                                if (i >= 7495 && i <= 7505) /* 0xA896..0xA8A0 */
+                                    wc = (ushort)(0xe7bc + (i - 7495));
+                                else if (i == 7533) /* 0xA8BC */
+                                    wc = 0xe7c7;
+                                else if (i == 7536) /* 0xA8BF */
+                                    wc = 0x01f9;
+                                else if (i >= 7538 && i <= 7541) /* 0xA8C1..0xA8C4 */
+                                    wc = (ushort)(0xe7c9 + (i - 7538));
+                                else if (i >= 7579 && i <= 7599) /* 0xA8EA..0xA8FE */
+                                    wc = (ushort)(0xe7cd + (i - 7579));
+                                break;
+                            case 0xa9:
+                                if (i == 7624) /* 0xA958 */
+                                    wc = 0xe7e2;
+                                else if (i == 7627) /* 0xA95B */
+                                    wc = 0xe7e3;
+                                else if (i >= 7629 && i <= 7631) /* 0xA95D..0xA95F */
+                                    wc = (ushort)(0xe7e4 + (i - 7629));
+                                else if (i >= 7672 && i < 7685) /* 0xA989..0xA995 */
+                                    wc = gb18030ext_2uni_pagea9[i - 7672];
+                                else if (i >= 7686 && i <= 7698) /* 0xA997..0xA9A3 */
+                                    wc = (ushort)(0xe7f4 + (i - 7686));
+                                else if (i >= 7775 && i <= 7789) /* 0xA9F0..0xA9FE */
+                                    wc = (ushort)(0xe801 + (i - 7775));
+                                break;
+                            case 0xd7:
+                                if (i >= 16525 && i <= 16529) /* 0xD7FA..0xD7FE */
+                                    wc = (ushort)(0xe810 + (i - 16525));
+                                break;
+                            case 0xfe:
+                                if (i < 23846)
+                                    wc = gb18030ext_2uni_pagefe[i - 23750];
+                                break;
+                            default:
+                                break;
                         }
                         if (wc != 0xfffd)
                         {
@@ -474,37 +474,36 @@ namespace cp52936
 
 
 
-        static unsafe int
-        gb18030_mbtowc(ref ulong pwc, byte *s, int n)
+        private static  int gb18030_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
             int ret;
 
             /* Code set 0 (ASCII) */
-            if (*s < 0x80)
-                return ascii_mbtowc(ref pwc, s, n);
+            if (s[offset] < 0x80)
+                return ascii_mbtowc(ref pwc, s, offset, n);
 
             /* Code set 1 (GBK extended) */
-            ret = gbk_mbtowc(ref pwc, s, n);
+            ret = gbk_mbtowc(ref pwc, s, offset, n);
             if (ret != RET_ILSEQ)
                 return ret;
 
-            ret = gb18030ext_mbtowc(ref pwc, s, n);
+            ret = gb18030ext_mbtowc(ref pwc, s, offset, n);
             if (ret != RET_ILSEQ)
                 return ret;
 
             /* Code set 2 (remainder of Unicode U+0000..U+FFFF), including
                User-defined characters, two-byte part of range U+E766..U+E864 */
-            ret = gb18030uni_mbtowc(ref pwc, s, n);
+            ret = gb18030uni_mbtowc(ref pwc, s, offset, n);
             if (ret != RET_ILSEQ)
                 return ret;
             /* User-defined characters range U+E000..U+E765 */
             {
-                byte c1 = s[0];
+                byte c1 = s[offset];
                 if ((c1 >= 0xaa && c1 <= 0xaf) || (c1 >= 0xf8 && c1 <= 0xfe))
                 {
                     if (n >= 2)
                     {
-                        byte c2 = s[1];
+                        byte c2 = s[offset + 1];
                         if (c2 >= 0xa1 && c2 <= 0xfe)
                         {
                             pwc = (ulong)(0xe000 + 94 * (c1 >= 0xf8 ? c1 - 0xf2 : c1 - 0xaa) + (c2 - 0xa1));
@@ -518,7 +517,7 @@ namespace cp52936
                 {
                     if (n >= 2)
                     {
-                        byte c2 = s[1];
+                        byte c2 = s[offset + 1];
                         if (c2 >= 0x40 && c2 <= 0xa1 && c2 != 0x7f)
                         {
                             pwc = (ulong)(0xe4c6 + 96 * (c1 - 0xa1) + c2 - (c2 >= 0x80 ? 0x41 : 0x40));
@@ -532,22 +531,22 @@ namespace cp52936
 
             /* Code set 3 (Unicode U+10000..U+10FFFF) */
             {
-                byte c1 = s[0];
+                byte c1 = s[offset];
                 if (c1 >= 0x90 && c1 <= 0xe3)
                 {
                     if (n >= 2)
                     {
-                        byte c2 = s[1];
+                        byte c2 = s[offset + 1];
                         if (c2 >= 0x30 && c2 <= 0x39)
                         {
                             if (n >= 3)
                             {
-                                byte c3 = s[2];
+                                byte c3 = s[offset + 2];
                                 if (c3 >= 0x81 && c3 <= 0xfe)
                                 {
                                     if (n >= 4)
                                     {
-                                        byte c4 = s[3];
+                                        byte c4 = s[offset + 3];
                                         if (c4 >= 0x30 && c4 <= 0x39)
                                         {
                                             uint i = (uint)((((c1 - 0x90) * 10 + (c2 - 0x30)) * 126 + (c3 - 0x81)) * 10 + (c4 - 0x30));
@@ -573,25 +572,24 @@ namespace cp52936
             }
         }
 
-        static unsafe int
-        gb18030uni_mbtowc(ref ulong pwc, byte *s, int n)
+        static  int  gb18030uni_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if (c1 >= 0x81 && c1 <= 0x84)
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if (c2 >= 0x30 && c2 <= 0x39)
                     {
                         if (n >= 3)
                         {
-                            byte c3 = s[2];
+                            byte c3 = s[offset + 2];
                             if (c3 >= 0x81 && c3 <= 0xfe)
                             {
                                 if (n >= 4)
                                 {
-                                    byte c4 = s[3];
+                                    byte c4 = s[offset + 3];
                                     if (c4 >= 0x30 && c4 <= 0x39)
                                     {
                                         uint i = (uint)((((c1 - 0x81) * 10 + (c2 - 0x30)) * 126 + (c3 - 0x81)) * 10 + (c4 - 0x30));
@@ -632,7 +630,7 @@ namespace cp52936
         }
 
 
-        static readonly ushort[] gbkext1_2uni_page81 =
+        private static readonly ushort[] gbkext1_2uni_page81 =
         {
             /* 0x81 */
             0x4e02, 0x4e04, 0x4e05, 0x4e06, 0x4e0f, 0x4e12, 0x4e17, 0x4e1f,
@@ -1436,7 +1434,7 @@ namespace cp52936
             0x72d4, 0x72d5, 0x72d6, 0x72d8, 0x72da, 0x72db,
         };
 
-        static readonly ushort[] gb2312_2uni_page21 =
+        private static readonly ushort[] gb2312_2uni_page21 =
         {
             /* 0x21 */
             0x3000, 0x3001, 0x3002, 0x30fb, 0x02c9, 0x02c7, 0x00a8, 0x3003,
@@ -1555,15 +1553,14 @@ namespace cp52936
             0x2545, 0x2546, 0x2547, 0x2548, 0x2549, 0x254a, 0x254b,
         };
 
-        static unsafe int
-        gbkext1_mbtowc(ref ulong pwc, byte *s, int n)
+        static int gbkext1_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if ((c1 >= 0x81 && c1 <= 0xa0))
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0x80 && c2 < 0xff))
                     {
                         uint i = (uint)(190 * (c1 - 0x81) + (c2 - (c2 >= 0x80 ? 0x41 : 0x40)));
@@ -1585,7 +1582,7 @@ namespace cp52936
             return RET_ILSEQ;
         }
 
-        static readonly ushort[] gb2312_2uni_page30 =
+        private static readonly ushort[] gb2312_2uni_page30 =
         {
             /* 0x30 */
             0x554a, 0x963f, 0x57c3, 0x6328, 0x54ce, 0x5509, 0x54c0, 0x7691,
@@ -2525,7 +2522,7 @@ namespace cp52936
             0x9f2f, 0x9f39, 0x9f37, 0x9f3d, 0x9f3e, 0x9f44,
         };
 
-        static readonly ushort[] cp936ext_2uni_pagea6 =
+        private static readonly ushort[] cp936ext_2uni_pagea6 =
         {
             /* 0xa6 */
             0xfe35,
@@ -2533,21 +2530,20 @@ namespace cp52936
             0xfe42, 0xfe43, 0xfe44, 0xfffd, 0xfffd, 0xfe3b, 0xfe3c, 0xfe37,
             0xfe38, 0xfe31, 0xfffd, 0xfe33, 0xfe34,
         };
-        static readonly ushort[] cp936ext_2uni_pagea8 =
+        private static readonly ushort[] cp936ext_2uni_pagea8 =
         {
             /* 0xa8 */
             0x0251, 0xfffd, 0x0144, 0x0148, 0xfffd, 0x0261,
         };
 
-        static unsafe int
-        cp936ext_mbtowc(ref ulong pwc, byte *s, int n)
+        static int cp936ext_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if ((c1 == 0xa6) || (c1 == 0xa8))
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0x80 && c2 < 0xff))
                     {
                         uint i = (uint)(190 * (c1 - 0x81) + (c2 - (c2 >= 0x80 ? 0x41 : 0x40)));
@@ -2575,15 +2571,15 @@ namespace cp52936
             return RET_ILSEQ;
         }
 
-        static unsafe int
-        gb2312_mbtowc(ref ulong pwc, byte *s, int n)
+        static  int
+        gb2312_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if ((c1 >= 0xA1 && c1 <= 0xA9) || (c1 >= 0xB0 && c1 <= 0xF7))
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if (c2 >= 0xA1 && c2 < 0xFf)
                     {
                         uint i = (uint)(94 * (c1 - 0xA1) + (c2 - 0xA1));
@@ -2612,9 +2608,9 @@ namespace cp52936
         }
 
 
-        static unsafe int gbk_mbtowc(ref ulong pwc, byte *s, int n)
+        static int gbk_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c = *s;
+            byte c = s[offset];
 
             if (c >= 0x81 && c < 0xff)
             {
@@ -2622,7 +2618,7 @@ namespace cp52936
                     return RET_TOOFEW;
                 if (c >= 0xa1 && c <= 0xf7)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if (c == 0xa1)
                     {
                         if (c2 == 0xa4)
@@ -2640,28 +2636,24 @@ namespace cp52936
                     {
                         byte[] buf = { 0, 0 };
                         int ret;
-                        buf[0] = c;
-                        buf[1] = c2;
-                        ret = gb2312_mbtowc(ref pwc, s, 2);
+                        ret = gb2312_mbtowc(ref pwc, s, offset, 2);
                         if (ret != RET_ILSEQ)
                             return ret;
                         buf[0] = c;
                         buf[1] = c2;
-                        fixed (byte *b = &buf[0])
-                        {
-                            ret = cp936ext_mbtowc(ref pwc, b, 2);
-                            if (ret != RET_ILSEQ)
-                                return ret;
-                        }
+                        ret = cp936ext_mbtowc(ref pwc, buf, 0, 2);
+                        if (ret != RET_ILSEQ)
+                            return ret;
+
                     }
                 }
                 if (c >= 0x81 && c <= 0xa0)
-                    return gbkext1_mbtowc(ref pwc, s, 2);
+                    return gbkext1_mbtowc(ref pwc, s, offset, 2);
                 if (c >= 0xa8 && c <= 0xfe)
-                    return gbkext2_mbtowc(ref pwc, s, 2);
+                    return gbkext2_mbtowc(ref pwc, s, offset, 2);
                 if (c == 0xa2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if (c2 >= 0xa1 && c2 <= 0xaa)
                     {
                         pwc = (ulong)(0x2170 + (c2 - 0xa1));
@@ -2673,7 +2665,7 @@ namespace cp52936
         }
 
 
-        static readonly ushort[] gb2312_2charset =
+        private static readonly ushort[] gb2312_2charset =
         {
             0x2168, 0x216c, 0x2127, 0x2163, 0x2140, 0x2141, 0x2824, 0x2822,
             0x2828, 0x2826, 0x283a, 0x282c, 0x282a, 0x2830, 0x282e, 0x2142,
@@ -3608,7 +3600,7 @@ namespace cp52936
             0x212b, 0x2169, 0x216a, 0x237e, 0x2324,
         };
 
-        static readonly int[,] gb2312_uni2indx_page00 =
+        private static readonly int[,] gb2312_uni2indx_page00 =
         {
             /* 0x0000 */
             {    0, 0x0000 }, {    0, 0x0000 }, {    0, 0x0000 }, {    0, 0x0000 },
@@ -3634,7 +3626,8 @@ namespace cp52936
             {   83, 0x0002 }, {   84, 0xffff }, {  100, 0xffff }, {  116, 0xffff },
             {  132, 0xffff }, {  148, 0x0002 },
         };
-        static readonly int[,] gb2312_uni2indx_page20 =
+
+        private static readonly int[,] gb2312_uni2indx_page20 =
         {
             /* 0x2000 */
             {  149, 0x0000 }, {  149, 0x3360 }, {  155, 0x0040 }, {  156, 0x080d },
@@ -3670,7 +3663,7 @@ namespace cp52936
             {  343, 0x0060 }, {  345, 0x0000 }, {  345, 0x0000 }, {  345, 0x0000 },
             {  345, 0x0005 },
         };
-        static readonly int[,] gb2312_uni2indx_page30 =
+        private static readonly int[,] gb2312_uni2indx_page30 =
         {
             /* 0x3000 */
             {  347, 0xff2f }, {  360, 0x00fb }, {  367, 0x0000 }, {  367, 0x0000 },
@@ -3685,7 +3678,7 @@ namespace cp52936
             /* 0x3200 */
             {  574, 0x0000 }, {  574, 0x0000 }, {  574, 0x03ff },
         };
-        static readonly int[,] gb2312_uni2indx_page4e =
+        private static readonly int[,] gb2312_uni2indx_page4e =
         {
             /* 0x4e00 */
             {  584, 0x7f8b }, {  595, 0x7f7b }, {  608, 0x3db4 }, {  617, 0xef55 },
@@ -4083,7 +4076,7 @@ namespace cp52936
             { 7142, 0x69e6 }, { 7151, 0xdc37 }, { 7161, 0x6bff }, { 7174, 0x3dff },
             { 7187, 0xfcf8 }, { 7198, 0xf3f9 }, { 7210, 0x0004 },
         };
-        static readonly int[,] gb2312_uni2indx_page9e =
+        private static readonly int[,] gb2312_uni2indx_page9e =
         {
             /* 0x9e00 */
             { 7211, 0x0000 }, { 7211, 0x8000 }, { 7212, 0xbf6f }, { 7225, 0xe7ee },
@@ -4095,7 +4088,7 @@ namespace cp52936
             { 7327, 0x0010 }, { 7328, 0x0003 }, { 7330, 0x0000 }, { 7330, 0x8000 },
             { 7331, 0x1ff9 }, { 7342, 0x8e00 }, { 7346, 0x0001 },
         };
-        static readonly int[,] gb2312_uni2indx_pageff =
+        private static readonly int[,] gb2312_uni2indx_pageff =
         {
             /* 0xff00 */
             { 7347, 0xfffe }, { 7362, 0xffff }, { 7378, 0xffff }, { 7394, 0xffff },
@@ -4105,7 +4098,7 @@ namespace cp52936
         };
 
 
-        static unsafe int gb2312_wctomb(byte *r, long wc, int n)
+        private static int gb2312_wctomb(ref byte[] r, long wc, int n)
         {
             int used = -1;
             int idx = -1;
@@ -4149,7 +4142,7 @@ namespace cp52936
         }
 
 
-        static readonly ushort[] gbkext2_2uni_pagea8 =
+        private static readonly ushort[] gbkext2_2uni_pagea8 =
         {
             /* 0xa8 */
             0x02ca, 0x02cb, 0x02d9, 0x2013, 0x2015, 0x2025, 0x2035, 0x2105,
@@ -5274,15 +5267,15 @@ namespace cp52936
             0xfa1f, 0xfa20, 0xfa21, 0xfa23, 0xfa24, 0xfa27, 0xfa28, 0xfa29,
         };
 
-        static unsafe int
-        gbkext2_mbtowc(ref ulong pwc, byte *s, int n)
+        static  int
+        gbkext2_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if ((c1 >= 0xa8 && c1 <= 0xfe))
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0x80 && c2 < 0xa1))
                     {
                         uint i = (uint)(96 * (c1 - 0x81) + (c2 - (c2 >= 0x80 ? 0x41 : 0x40)));
@@ -5304,7 +5297,7 @@ namespace cp52936
             return RET_ILSEQ;
         }
 
-        static readonly ushort[] big5_2uni_pagea1 =
+        private static readonly ushort[] big5_2uni_pagea1 =
         {
             /* 0xa1 */
             0x3000, 0xff0c, 0x3001, 0x3002, 0xff0e, 0x2022, 0xff1b, 0xff1a,
@@ -6126,7 +6119,7 @@ namespace cp52936
             0x2469, 0x2474, 0x2475, 0x2476, 0x2477, 0x2478, 0x2479, 0x247a,
             0x247b, 0x247c, 0x247d,
         };
-        static readonly ushort[] big5_2uni_pagec9 =
+        private static readonly ushort[] big5_2uni_pagec9 =
         {
             /* 0xc9 */
             0x4e42, 0x4e5c, 0x51f5, 0x531a, 0x5382, 0x4e07, 0x4e0c, 0x4e47,
@@ -7154,15 +7147,15 @@ namespace cp52936
             0x9ea4, 0x9f7e, 0x9f49, 0x9f98,
         };
 
-        static unsafe int
-        big5_mbtowc(ref ulong pwc, byte *s, int n)
+        static  int
+        big5_mbtowc(ref ulong pwc, byte[] s, int offset, int n)
         {
-            byte c1 = s[0];
+            byte c1 = s[offset];
             if ((c1 >= 0xa1 && c1 <= 0xc7) || (c1 >= 0xc9 && c1 <= 0xf9))
             {
                 if (n >= 2)
                 {
-                    byte c2 = s[1];
+                    byte c2 = s[offset + 1];
                     if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0xa1 && c2 < 0xff))
                     {
                         uint i = (uint)(157 * (c1 - 0xa1) + (c2 - (c2 >= 0xa1 ? 0x62 : 0x40)));
@@ -7190,7 +7183,7 @@ namespace cp52936
             return RET_ILSEQ;
         }
 
-        static readonly ushort[] big5_2charset =
+        private static readonly ushort[] big5_2charset =
         {
             0xa246, 0xa247, 0xa244, 0xa1b1, 0xa258, 0xa1d3, 0xa150, 0xa1d1,
             0xa1d2, 0xa3be, 0xa3bc, 0xa3bd, 0xa3bf, 0xa3bb, 0xa344, 0xa345,
@@ -8907,7 +8900,7 @@ namespace cp52936
             0xa341, 0xa342, 0xa343, 0xa161, 0xa155, 0xa162, 0xa14e,
         };
 
-        static readonly int[,] big5_uni2indx_page00 =
+        private static readonly int[,] big5_uni2indx_page00 =
         {
             /* 0x0000 */
             {    0, 0x0000 }, {    0, 0x0000 }, {    0, 0x0000 }, {    0, 0x0000 },
@@ -8915,7 +8908,7 @@ namespace cp52936
             {    0, 0x0000 }, {    0, 0x0000 }, {    0, 0x00ac }, {    4, 0x0083 },
             {    7, 0x0000 }, {    7, 0x0080 }, {    8, 0x0000 }, {    8, 0x0080 },
         };
-        static readonly int[,] big5_uni2indx_page02 =
+        private static readonly int[,] big5_uni2indx_page02 =
         {
             /* 0x0200 */
             {    9, 0x0000 }, {    9, 0x0000 }, {    9, 0x0000 }, {    9, 0x0000 },
@@ -8931,7 +8924,7 @@ namespace cp52936
             {   62, 0x0002 }, {   63, 0x1ff0 }, {   72, 0xfff8 }, {   85, 0xffff },
             {  101, 0xffff }, {  117, 0x0002 },
         };
-        static readonly int[,] big5_uni2indx_page20 =
+        private static readonly int[,] big5_uni2indx_page20 =
         {
             /* 0x2000 */
             {  118, 0x0000 }, {  118, 0x3318 }, {  124, 0x0064 }, {  127, 0x4824 },
@@ -8948,7 +8941,7 @@ namespace cp52936
             {  165, 0x0000 }, {  165, 0x0004 }, {  166, 0x00c3 }, {  170, 0x0000 },
             {  170, 0x0000 }, {  170, 0x0000 }, {  170, 0x0020 }, {  171, 0x8000 },
         };
-        static readonly int[,] big5_uni2indx_page24 =
+        private static readonly int[,] big5_uni2indx_page24 =
         {
             /* 0x2400 */
             {  172, 0x0000 }, {  172, 0x0000 }, {  172, 0x0000 }, {  172, 0x0000 },
@@ -8964,7 +8957,7 @@ namespace cp52936
             {  246, 0x0260 }, {  249, 0x0000 }, {  249, 0x0000 }, {  249, 0x0000 },
             {  249, 0x0007 },
         };
-        static readonly int[,] big5_uni2indx_page30 =
+        private static readonly int[,] big5_uni2indx_page30 =
         {
             /* 0x3000 */
             {  252, 0xff2f }, {  265, 0x6037 }, {  272, 0x03fe }, {  281, 0x0000 },
@@ -8987,7 +8980,7 @@ namespace cp52936
             {  491, 0xc000 }, {  493, 0x7000 }, {  496, 0x0002 }, {  497, 0x0000 },
             {  497, 0x4010 }, {  499, 0x0026 },
         };
-        static readonly int[,] big5_uni2indx_page4e =
+        private static readonly int[,] big5_uni2indx_page4e =
         {
             /* 0x4e00 */
             {  502, 0xff8b }, {  514, 0xc373 }, {  523, 0x6840 }, {  527, 0x1b0f },
@@ -9399,12 +9392,12 @@ namespace cp52936
             { 13502, 0xffcf }, { 13516, 0xfbf4 }, { 13528, 0xdcfb }, { 13540, 0x4ff7 },
             { 13552, 0x2000 }, { 13553, 0x1137 }, { 13560, 0x0015 },
         };
-        static readonly int[,] big5_uni2indx_pagefa =
+        private static readonly int[,] big5_uni2indx_pagefa =
         {
             /* 0xfa00 */
             { 13563, 0x3000 },
         };
-        static readonly int[,] big5_uni2indx_pagefe =
+        private static readonly int[,] big5_uni2indx_pagefe =
         {
             /* 0xfe00 */
             { 13565, 0x0000 }, { 13565, 0x0000 }, { 13565, 0x0000 }, { 13565, 0xfffb },
@@ -9416,8 +9409,7 @@ namespace cp52936
             { 13673, 0xfffe }, { 13688, 0x3fff }, { 13702, 0x0010 },
         };
 
-        static unsafe int
-        big5_wctomb(byte *r, long wc, int n)
+        static int big5_wctomb(ref byte[] r, long wc, int n)
         {
             if (n >= 2)
             {
@@ -9463,11 +9455,6 @@ namespace cp52936
             return RET_TOOSMALL;
         }
 
-        static string Unicode_ToString(ulong c)
-        {
-            byte[] bytes = BitConverter.GetBytes(c);
-            return Encoding.Unicode.GetString(bytes);
-        }
 
         public string Gb18030_GetString(byte[] szIn)
         {
@@ -9479,72 +9466,69 @@ namespace cp52936
             string szOut = "";
             ulong code = 0;
             int i;
-            unsafe
+            for (i = 0; i < len;)
             {
-                fixed (byte *p = szIn)
+                int cl = 0;
+                cl = gb18030_mbtowc(ref code, szIn, i, len - i);
+                if (cl == 1)
                 {
-                    for (i = 0; i < len;)
+                    szOut += Encoding.ASCII.GetString(BitConverter.GetBytes(code),0,cl);
+                    i += cl;
+                }
+                else if (cl > 1)
+                {
+                    szOut += Encoding.Unicode.GetString(BitConverter.GetBytes(code), 0, cl);
+                    i += cl;
+                }
+                else
+                {
+                    if (throwOnInvalidBytes)
                     {
-                        int cl = 0;
-                        cl = gb18030_mbtowc(ref code, p + i, len - i);
-                        if (cl > 0)
-                        {
-                            szOut += Unicode_ToString(code);
-                            i += cl;
-                        }
-                        else
-                        {
-                            if (throwOnInvalidBytes)
-                            {
-                                throw new DecoderFallbackException("Decode failed as GB18030!", szIn, i);
-                            }
-                            ++i;
-                        }
+                        throw new DecoderFallbackException("Decode failed as GB18030!", szIn, i);
                     }
+                    ++i;
                 }
             }
             return szOut;
         }
 
-        string Big5_GetString(byte[] szIn)
+        public string Big5_GetString(byte[] szIn)
         {
             return Big5_GetString(szIn, szIn.Length);
 
         }
 
-        string Big5_GetString(byte[] szIn, int len)
+        public string Big5_GetString(byte[] szIn, int len)
         {
 
             StringBuilder stringBuilder = new StringBuilder();
             ulong code = 0;
-            unsafe
+            for (int i = 0; i < len; i++)
             {
-                fixed (byte *p = szIn)
+                int cl = 0;
+                if ((szIn[i] > 0xA0) && szIn[i] <= 0xF9 &&
+                        (((szIn[i + 1] >= 0x40) && (szIn[i + 1] <= 0x7F)) ||
+                         ((szIn[i + 1] > 0xA0) && (szIn[i + 1] < 0xFF))
+                        ))
                 {
-                    for (int i = 0; i < len; i++)
+                    cl = big5_mbtowc(ref code, szIn, i, 2);
+                }
+                if (cl == 1)
+                {
+                    stringBuilder.Append(Encoding.ASCII.GetString(BitConverter.GetBytes(code), 0, cl));
+                }
+                else if (cl > 1)
+                {
+                    stringBuilder.Append(Encoding.Unicode.GetString(BitConverter.GetBytes(code), 0, cl));
+                    i ++;
+                }
+                else
+                {
+                    if (throwOnInvalidBytes)
                     {
-                        int cl = 0;
-                        if ((szIn[i] > 0xA0) && szIn[i] <= 0xF9 &&
-                                (((szIn[i + 1] >= 0x40) && (szIn[i + 1] <= 0x7F)) ||
-                                 ((szIn[i + 1] > 0xA0) && (szIn[i + 1] < 0xFF))
-                                ))
-                        {
-                            cl = big5_mbtowc(ref code, p + i, 2);
-                        }
-                        if (cl >= 0)
-                        {
-                            stringBuilder.Append(Unicode_ToString(code));
-                            i++;
-                        }
-                        else
-                        {
-                            if (throwOnInvalidBytes)
-                            {
-                                throw new DecoderFallbackException("Decode failed as GB18030!", szIn, i);
-                            }
-                            stringBuilder.Append(szIn[i]);
-                        }
+                        throw new DecoderFallbackException("Decode failed as GB18030!", szIn, i);
                     }
+                    stringBuilder.Append(szIn[i]);
                 }
             }
             return stringBuilder.ToString();
@@ -9562,7 +9546,7 @@ namespace cp52936
         //[#xAFFFE-#xAFFFF], [#xBFFFE-#xBFFFF], [#xCFFFE-#xCFFFF],
         //[#xDFFFE-#xDFFFF], [#xEFFFE-#xEFFFF], [#xFFFFE-#xFFFFF],
         //[#x10FFFE-#x10FFFF].
-        static bool isUTF8(string strIn)
+        public static bool isUTF8(string strIn)
         {
             int len = strIn.Length;
 
@@ -9590,7 +9574,7 @@ namespace cp52936
             return true; // can be UTF8 (or pure ASCII, at least no non-UTF-8 8bit characters)
         }
 
-        static bool isUTF8(byte[] strIn)
+        public static bool isUTF8(byte[] strIn)
         {
             int len = strIn.Length;
             for (int i = 0; i < len; ++i)
