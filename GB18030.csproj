@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>test</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="GB18030Encoding.cs~RF234a1f5.TMP" />
+  </ItemGroup>
+
+</Project>
